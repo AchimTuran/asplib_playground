@@ -36,7 +36,7 @@ dllHeader = 'CompressorDll.h';
 
 if (libisloaded('CompressorDll'))
   disp('[asplib] Reloading CompressorDll');
-  calllib('CompressorDll', 'DestroyCompressor')
+  calllib('CompressorDll', 'destroy_Compressor')
   unloadlibrary('CompressorDll');
 end
 

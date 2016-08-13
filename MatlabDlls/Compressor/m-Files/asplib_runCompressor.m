@@ -23,43 +23,76 @@
 % */
 
 % reset workspace
-clc
 clear all;
+close all;
+clc;
 
-% load asplib_SpectrumVisProcessorDll
-asplib_load_SpectrumVisProcessorDll()
+% load asplib_CompressorDll
+asplib_load_CompressorDll()
 
-frameSize = 128;
-fftFrameSize = 2048;
-nFrames = 1;
-dBFSScaleVal = 2.0/fftFrameSize;
-maxSampleBits = 32;
-max_dBFSVal = (6.0206*maxSampleBits + 1.761)*0.3;
-fA = 44100;
-f0FFTBin = 100;
-f0Shift = 1.0;
-f0 = 44100/fftFrameSize*f0FFTBin*f0Shift;
-t = 0:1/fA:nFrames*fftFrameSize/fA;
-A = 1.0;
-x = A*sin(2*pi*f0*t);
-figure(1)
-plot(t, x)
-figure(2)
-X = max_dBFSVal + 20.0*log10(abs(fft(x(1:fftFrameSize)*dBFSScaleVal)));
-bar(max(X(1:fftFrameSize/2)/max_dBFSVal, 0));
-xlim([1, fftFrameSize/2])
+%load handel.mat
+FrameSize = 128
+sampleFrequency = 44100;
+
+t = (0:sampleFrequency*1000)/sampleFrequency;
+inputSignal = 0.6*sin(2*pi*200.*t);
+inputSignal(3000:5000) = 2*inputSignal(3000:5000);
+
+asplib_createCompressor(FrameSize, sampleFrequency);
+
+while stop <= length(inputSignal)
+    buffer = inputSignal(start:stop);
+    start = stop + 1;
+    stop = start + bufferSize - 1;
+    b = [b,buffer];
+    
+    outputbuffer = asplib_processCompressor(buffer);
+
+    output = [output,outputbuffer];   
+end
 
 
-asplib_createSpectrumVisProcessor(frameSize, fftFrameSize)
 
-y = asplib_processSpectrumVisProcessor(x);
-
-asplib_destroySpectrumVisProcessor()
+asplib_destroyCompressorDll()
 
 % unload asplib_MatlabDll
-asplib_unload_SpectrumVisProcessorDll()
+asplib_unload_CompressorDll()
 
-figure(3)
-%y = max_dBFSVal + y;
-plot(y(1:frameSize/2))
-xlim([1, frameSize/2])
+figure
+subplot(2,1,1)
+plot(b)
+title('Originalsignal')
+grid on
+hold on
+plot(1:length(b),ones(1,length(b))*10^(Threshold/20),'r')
+xlabel('t in s')
+ylabel('|x(t)|')
+subplot(2,1,2)
+plot(output)
+grid on
+hold on
+plot(1:length(b),ones(1,length(b))*10^(Threshold/20),'r')
+title('Komprimiertes Signal')
+xlabel('t in s')
+ylabel('xc(t)')
+ylim([-2,2])
+
+Nfft = 1024;
+f = (0:Nfft/2-1)*8000/Nfft;
+X = abs(fft(output,Nfft)/Nfft);
+Xorg = abs(fft(b,Nfft))/Nfft;
+
+figure
+subplot(2,1,1)
+plot(f,Xorg(1:Nfft/2))
+grid on
+xlabel('f in Hz')
+ylabel('|X(f)|')
+title('Spektrum Originalsignal')
+subplot(2,1,2)
+plot(f,X(1:Nfft/2));
+title('Spektrum komprimiertes Signal')
+grid on
+xlabel('f in Hz')
+ylabel('|Xx(f)|')
+

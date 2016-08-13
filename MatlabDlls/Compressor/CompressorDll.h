@@ -60,8 +60,6 @@ DLL_EXPORT void destroy_Compressor();
 //DLL_EXPORT RET_ERR set_BiquadCoefficients(mxArray *Coefficients, uint32 BiquadIdx, single C0, single D0);
 //DLL_EXPORT RET_ERR set_BiquadsCoefficients(mxArray *Coefficients, single C0, single D0);
 
-DLL_EXPORT RET_ERR init_asplib(single SampleFrequency, uint32 MaxChannels, uint32 MaxFrameSize);
-
 #ifdef __cplusplus
 }
 #endif
