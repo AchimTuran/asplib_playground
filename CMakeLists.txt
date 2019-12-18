@@ -1,7 +1,5 @@
 cmake_minimum_required(VERSION 3.0)
 
-
-
 project(asplib_playground VERSION 1.0)
 # TODO solve 'Enable C++ exceptions' to 'NO' and I got warning: warning C4530: C++ exception handler used, 
 #             but unwind semantics are not enabled. Specify /EHsc'
@@ -9,25 +7,16 @@ project(asplib_playground VERSION 1.0)
 
 # make sure CMAKE_PREFIX_PATH is set
 file(TO_CMAKE_PATH "${CMAKE_PREFIX_PATH}" CMAKE_PREFIX_PATH)
-#list(APPEND CMAKE_PREFIX_PATH "${CMAKE_INSTALL_PREFIX}/depends/out")
 message(STATUS "CMAKE_BINARY_DIR=${CMAKE_BINARY_DIR}")
-#set(CMAKE_PREFIX_PATH ${CMAKE_BINARY_DIR}/depends/output/)
-#set(CMAKE_PREFIX_PATH D:/DevProjects/myLibs/asplib_playground/build_VS2013_x64/depends/output/lib/cmake/asplib-1.0)
 list(APPEND CMAKE_PREFIX_PATH ${CMAKE_BINARY_DIR}/depends/output/)
 list(APPEND CMAKE_PREFIX_PATH ${CMAKE_BINARY_DIR}/depends/output/lib)
 
-file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/depends/build)
-execute_process(COMMAND ${CMAKE_COMMAND} -G "${CMAKE_GENERATOR}" "${CMAKE_CURRENT_SOURCE_DIR}/cmake/depends"
-                        "-DCMAKE_INSTALL_PREFIX=${CMAKE_BINARY_DIR}/depends/output"
-                        ${OUTPUT_QUIET}
-                        WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/depends/build")
-                    
-execute_process(COMMAND ${CMAKE_COMMAND} --build .
-                        ${OUTPUT_QUIET}
-                        WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/depends/build")
-
-find_package(asplib 1.0 REQUIRED)
-find_package(KissFFT 1.30 REQUIRED)
+include(cmake/cmake_helpers/gitCloneProject.cmake)
+set(ASPLIB_MODULES_TO_BUILD SpectrumVisProcessor Biquad ComputeDeviceInfo)
+git_clone_project(PROJ                asplib
+                  GIT_REPOSITORY      https://github.com/AchimTuran/asplib
+                  GIT_TAG             add-spectrum-vis-processor)
+add_subdirectory(${asplib_SOURCE_DIR} ${asplib_BINARY_DIR})
 
 include(cmake/asplib_helpers.cmake)
 

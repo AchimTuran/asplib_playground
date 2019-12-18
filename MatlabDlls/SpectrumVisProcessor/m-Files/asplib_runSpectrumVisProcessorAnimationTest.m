@@ -1,4 +1,4 @@
-% this script tests the SpectrumVisProcessor module from asplib
+% this script is used to create and test Biquads from asplib
 
 %/*
 % * Copyright (C) 2014 Achim Turan, Achim.Turan@o2online.de
@@ -31,35 +31,49 @@ asplib_load_SpectrumVisProcessorDll()
 
 frameSize = 128;
 fftFrameSize = 2048;
-nFrames = 1;
+plotFPS = 120; % FPS
 dBFSScaleVal = 2.0/fftFrameSize;
 maxSampleBits = 32;
-max_dBFSVal = (6.0206*maxSampleBits + 1.761)*0.3;
-fA = 44100;
-f0FFTBin = 100;
-f0Shift = 1.0;
-f0 = 44100/fftFrameSize*f0FFTBin*f0Shift;
-t = 0:1/fA:nFrames*fftFrameSize/fA;
-A = 1.0;
-x = A*sin(2*pi*f0*t);
-figure(1)
-plot(t, x)
-figure(2)
-X = max_dBFSVal + 20.0*log10(abs(fft(x(1:fftFrameSize)*dBFSScaleVal)));
-bar(max(X(1:fftFrameSize/2)/max_dBFSVal, 0));
-xlim([1, fftFrameSize/2])
-
+max_dBFSVal = (6.0206*maxSampleBits + 1.761);
+max_dBFSVal = 160;
+[x, fS, NBits] = wavread('sweep.wav');
+%figure(1)
+%plot(x)
+maxAmplitude = 0.01;
+x = x/max(x);
+x = maxAmplitude*x;
 
 asplib_createSpectrumVisProcessor(frameSize, fftFrameSize)
 
-y = asplib_processSpectrumVisProcessor(x);
+len = size(x,1);
+blocks = floor(len/fftFrameSize);
+frameTime = 1.0/plotFPS;
+
+figure(1)
+for ii=floor(blocks*0.2):blocks-2
+  progress = (ii/(blocks-2))*100.0;
+
+  subplot(2, 1, 1)
+  y = asplib_processSpectrumVisProcessor(x(fftFrameSize*ii +1 : fftFrameSize*(ii+1) +1));
+  %y = max_dBFSVal + y;
+  %bar(max(y(1:frameSize/2)/max_dBFSVal, 0))
+  bar((y(1:frameSize) + max_dBFSVal)/max_dBFSVal)
+  xlim([1, frameSize])
+  %ylim([0, 1.5])
+  grid on
+  title(strcat('progress: ', num2str(progress)))
+
+  subplot(2, 1, 2)
+  y_ref = abs(fft(x(fftFrameSize*ii +1 : fftFrameSize*(ii+1) +1)))*2/fftFrameSize;
+  bar(y_ref)
+  xlim([1, fftFrameSize/2])
+  ylim([0, maxAmplitude])
+  grid on
+  
+  pause(frameTime)
+end
 
 asplib_destroySpectrumVisProcessor()
 
 % unload asplib_MatlabDll
 asplib_unload_SpectrumVisProcessorDll()
-
-figure(3)
-%y = max_dBFSVal + y;
-plot(y(1:frameSize/2))
-xlim([1, frameSize/2])

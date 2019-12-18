@@ -1,4 +1,4 @@
-% this script is used to create a Biquad Filter
+% this script creates the SpectrumVisProcessor
 
 %/*
 % * Copyright (C) 2014 Achim Turan, Achim.Turan@o2online.de
@@ -24,15 +24,14 @@
 
 
 
-function asplib_createSpectrumVisProcessor(FrameSize)
+function asplib_createSpectrumVisProcessor(FrameSize, fftFrameSize)
 %ASPLIB_CREATESPECTRUMVISPROCESSOR Summary of this function goes here
 %   Detailed explanation goes here
-    if not(libisloaded('asplib_MatlabDll'))
-		disp('[asplib] asplib_MatlabDll is not loaded! Please run asplib_load_MatlabDll.m first!');
-		return;
-    end
+  if not(libisloaded('SpectrumVisProcessorDll'))
+    disp('[asplib] SpectrumVisProcessorDll is not loaded! Please run asplib_load_SpectrumVisProcessorDll.m first!');
+    return;
+  end
     
     % ToDo evaluate err
-	[ret] = calllib('asplib_MatlabDll', 'create_SpectrumVisProcessor', uint32(FrameSize));
+	[ret] = calllib('SpectrumVisProcessorDll', 'CreateSpectrumVisProcessor', uint32(FrameSize), uint32(fftFrameSize));
 end
-
