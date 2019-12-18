@@ -15,7 +15,7 @@ include(cmake/cmake_helpers/gitCloneProject.cmake)
 set(ASPLIB_MODULES_TO_BUILD SpectrumVisProcessor Biquad ComputeDeviceInfo)
 git_clone_project(PROJ                asplib
                   GIT_REPOSITORY      https://github.com/AchimTuran/asplib
-                  GIT_TAG             add-spectrum-vis-processor)
+                  GIT_TAG             master)
 add_subdirectory(${asplib_SOURCE_DIR} ${asplib_BINARY_DIR})
 
 include(cmake/asplib_helpers.cmake)
