@@ -12,7 +12,6 @@ list(APPEND CMAKE_PREFIX_PATH ${CMAKE_BINARY_DIR}/depends/output/)
 list(APPEND CMAKE_PREFIX_PATH ${CMAKE_BINARY_DIR}/depends/output/lib)
 
 include(cmake/cmake_helpers/gitCloneProject.cmake)
-set(ASPLIB_MODULES_TO_BUILD SpectrumVisProcessor Biquad ComputeDeviceInfo)
 git_clone_project(PROJ                asplib
                   GIT_REPOSITORY      https://github.com/AchimTuran/asplib
                   GIT_TAG             master)
