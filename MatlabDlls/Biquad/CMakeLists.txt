@@ -1,7 +1,8 @@
 # sets the solution name
 project(BiquadDll)
 
-find_package(Matlab 8.1 REQUIRED)
+set(MATLAB_FIND_DEBUG ON)
+find_package(Matlab COMPONENTS MX_LIBRARY MAT_LIBRARY REQUIRED)
 
 # set here further source and header files, which should be relative to this file
 set(SOURCES BiquadDll.cpp)
@@ -25,12 +26,12 @@ target_compile_definitions(${PROJECT_NAME} PRIVATE ASPLIB_DLL_FUNCTION_EXPORT=1 
 
 # add include directories
 target_include_directories(${PROJECT_NAME} PRIVATE
-                                           $<BUILD_INTERFACE:${MATLAB_INCLUDE_DIR}>
+                                           $<BUILD_INTERFACE:${Matlab_INCLUDE_DIRS}>
                                            $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
                                            $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../Common>)
 
 # link against asplib Biquad component
-target_link_libraries(${PROJECT_NAME} asplib::Biquad ${MATLAB_MEX_LIBRARY} ${MATLAB_MX_LIBRARY})
+target_link_libraries(${PROJECT_NAME} asplib::Biquad ${Matlab_MEX_LIBRARY} ${Matlab_MX_LIBRARY} ${Matlab_MAT_LIBRARY})
 # sets the exectuable output file name
 set_target_properties(${PROJECT_NAME} PROPERTIES OUTPUT_NAME ${PROJECT_NAME})
 
@@ -45,4 +46,10 @@ if(EXISTS ${MATLAB_WKS})
   install(DIRECTORY m-Files/ DESTINATION ${MATLAB_WKS}/asplib_playground FILES_MATCHING PATTERN "*.m")
 else()
   message(WARNING "Skipped installation of MatlabDll ${PROJECT_NAME} because ${MATLAB_WKS} doesn't exist.")
+endif()
+
+matlab_get_version_from_release_name("R2017a" newAPIVersion)
+if(${Matlab_VERSION_STRING} VERSION_GREATER ${newAPIVersion})
+  message(WARNING "fallback to legacy API")
+  target_compile_definitions(${PROJECT_NAME} PRIVATE MEX_DOUBLE_HANDLE)
 endif()

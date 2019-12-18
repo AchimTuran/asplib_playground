@@ -30,8 +30,6 @@
 
 namespace asplib
 {
-const int ASPLIB_EXTENDED_STRUCT_CompressorOptions = ASPLIB_EXTENDED_STRUCT_CompressorOptions + 1;
-
 struct CompressorOptions : ASPLIB_EXTENDED_STRUCT(CompressorOptions)
 {
   typedef enum
